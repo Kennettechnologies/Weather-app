@@ -1,0 +1,172 @@
+{% extends 'weather/base.html' %}
+{% load static %}
+
+{% block title %}Weather Search{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" name="city" class="form-control" placeholder="Enter city name" required>
+                <button class="btn btn-primary" type="submit">Search</button>
+                <button type="button" class="btn btn-outline-primary" onclick="getLocation()">
+                    <i class="bi bi-geo-alt"></i> Use My Location
+                </button>
+            </div>
+        </form>
+
+        {% if weather %}
+        <div class="weather-card text-center">
+            <h2>{{ weather.name }}, {{ weather.sys.country }}</h2>
+            <img class="weather-icon" src="http://openweathermap.org/img/wn/{{ weather.weather.0.icon }}@2x.png" alt="Weather icon">
+            <h3>{{ weather.weather.0.main }} ({{ weather.weather.0.description|title }})</h3>
+            <p class="mb-1">Temperature: <strong>{{ weather.main.temp }}°C</strong></p>
+            <p class="mb-1">Humidity: <strong>{{ weather.main.humidity }}%</strong></p>
+            <p class="mb-1">Wind Speed: <strong>{{ weather.wind.speed }} m/s</strong></p>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_favorite' %}" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="city" value="{{ weather.name }}">
+                <button class="btn btn-outline-primary btn-sm">Add to Favorites</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if forecast %}
+        <div class="weather-card">
+            <h4>5-Day Forecast</h4>
+            <div class="row">
+                {% for item in forecast.list|slice:":5" %}
+                <div class="col forecast-item">
+                    <div>{{ item.dt_txt|date:"D H:i" }}</div>
+                    <img src="http://openweathermap.org/img/wn/{{ item.weather.0.icon }}@2x.png" width="50" alt="icon">
+                    <div>{{ item.main.temp }}°C</div>
+                    <div>{{ item.weather.0.main }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Weather Charts -->
+            <div class="mt-4">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+            <div class="mt-4">
+                <canvas id="humidityChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if forecast %}
+<script>
+    // Prepare data for charts
+    const forecastData = {{ forecast.list|slice:":5"|safe }};
+    const labels = forecastData.map(item => new Date(item.dt_txt).toLocaleTimeString());
+    const temperatures = forecastData.map(item => item.main.temp);
+    const humidity = forecastData.map(item => item.main.humidity);
+
+    // Temperature Chart
+    new Chart(document.getElementById('temperatureChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: temperatures,
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Temperature Trend'
+                }
+            }
+        }
+    });
+
+    // Humidity Chart
+    new Chart(document.getElementById('humidityChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Humidity (%)',
+                data: humidity,
+                borderColor: 'rgb(54, 162, 235)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Humidity Trend'
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+
+<script>
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                // Send coordinates to server
+                fetch('{% url "get_location_weather" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: `lat=${position.coords.latitude}&lon=${position.coords.longitude}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.name) {
+                        // Update the city input field
+                        document.querySelector('input[name="city"]').value = data.name;
+                        // Submit the form
+                        document.querySelector('form').submit();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error getting weather data for your location.');
+                });
+            },
+            function(error) {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert('Please allow location access to get weather for your current location.');
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert('Location information is unavailable.');
+                        break;
+                    case error.TIMEOUT:
+                        alert('The request to get your location timed out.');
+                        break;
+                    default:
+                        alert('An unknown error occurred.');
+                        break;
+                }
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by your browser.');
+    }
+}
+</script>
+{% endblock %} 

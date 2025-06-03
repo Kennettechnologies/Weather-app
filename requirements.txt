@@ -1,0 +1,10 @@
+Django==5.0.2
+requests==2.31.0
+python-dotenv==1.0.1
+django-bootstrap5==23.4
+django-crispy-forms==2.1
+crispy-bootstrap5==2024.2
+gunicorn==21.2.0
+whitenoise==6.6.0
+dj-database-url==2.1.0
+psycopg2-binary==2.9.9 

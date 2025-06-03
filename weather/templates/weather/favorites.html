@@ -1,0 +1,37 @@
+{% extends 'weather/base.html' %}
+
+{% block title %}Favorite Cities{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>Your Favorite Cities</h2>
+        {% if weather_data %}
+            {% for item in weather_data %}
+            <div class="weather-card mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4>{{ item.city }}</h4>
+                        <p>{{ item.weather.weather.0.description|title }}</p>
+                        <p>Temperature: <strong>{{ item.weather.main.temp }}°C</strong></p>
+                        <p>Humidity: <strong>{{ item.weather.main.humidity }}%</strong></p>
+                        <p>Wind: <strong>{{ item.weather.wind.speed }} m/s</strong></p>
+                    </div>
+                    <div>
+                        <img class="weather-icon" src="http://openweathermap.org/img/wn/{{ item.weather.weather.0.icon }}@2x.png" alt="Weather icon">
+                    </div>
+                </div>
+                <form method="post" action="{% url 'remove_favorite' %}" class="mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="city" value="{{ item.city }}">
+                    <button class="btn btn-outline-danger btn-sm">Remove from Favorites</button>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>You have no favorite cities yet.</p>
+        {% endif %}
+        <a href="{% url 'index' %}" class="btn btn-secondary mt-3">Back to Search</a>
+    </div>
+</div>
+{% endblock %} 
