@@ -6,6 +6,9 @@ from .models import SearchHistory, FavoriteCity
 from .utils import get_weather_data, get_forecast_data, get_location_weather
 from django.contrib.auth.models import User
 from .forms import UserRegistrationForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 def index(request):
     """Home page view with weather search functionality."""
@@ -88,13 +91,27 @@ def get_location_weather_view(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def register(request):
+    """Handle user registration with improved error handling."""
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
-            return redirect('login')
+        try:
+            form = UserRegistrationForm(request.POST)
+            if form.is_valid():
+                try:
+                    user = form.save()
+                    username = form.cleaned_data.get('username')
+                    logger.info(f'Successfully created user account for {username}')
+                    messages.success(request, f'Account created for {username}! You can now log in.')
+                    return redirect('login')
+                except Exception as e:
+                    logger.error(f'Error saving user: {str(e)}')
+                    messages.error(request, 'An error occurred while creating your account. Please try again.')
+            else:
+                logger.warning(f'Form validation errors: {form.errors}')
+                messages.error(request, 'Please correct the errors below.')
+        except Exception as e:
+            logger.error(f'Unexpected error during registration: {str(e)}')
+            messages.error(request, 'An unexpected error occurred. Please try again.')
     else:
         form = UserRegistrationForm()
+    
     return render(request, 'registration/register.html', {'form': form})
