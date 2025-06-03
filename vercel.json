@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "api/index.py",
+            "src": "weather_project/wsgi.py",
             "use": "@vercel/python",
             "config": {
                 "runtime": "python3.9",
@@ -25,7 +25,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "/api/index.py"
+            "dest": "/weather_project/wsgi.py"
         }
     ],
     "env": {
