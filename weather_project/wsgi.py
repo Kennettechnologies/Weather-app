@@ -14,3 +14,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "weather_project.settings")
 
 # This is the variable that Vercel looks for
 handler = get_wsgi_application()
+
+# For local development
+application = handler

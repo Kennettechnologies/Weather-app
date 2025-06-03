@@ -2,10 +2,11 @@
     "version": 2,
     "builds": [
         {
-            "src": "weather_project/wsgi.py",
+            "src": "api/index.py",
             "use": "@vercel/python",
             "config": {
-                "runtime": "python3.9"
+                "runtime": "python3.9",
+                "maxLambdaSize": "15mb"
             }
         },
         {
@@ -24,7 +25,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "/weather_project/wsgi.py"
+            "dest": "/api/index.py"
         }
     ],
     "env": {
