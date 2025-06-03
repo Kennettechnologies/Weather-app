@@ -22,10 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-rau31c!5yo!pf8t%7r35ut944)vccrd4e4_n4zrtzl7xmm-1nr"
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-rau31c!5yo!pf8t%7r35ut944)vccrd4e4_n4zrtzl7xmm-1nr')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-SECRET_KEY = "django-insecure-rau31c!5yo!pf8t%7r35ut944)vccrd4e4_n4zrtzl7xmm-1nr"
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*', '.vercel.app', '.now.sh', 'localhost', '127.0.0.1']
@@ -148,8 +147,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Security settings
 SECURE_SSL_REDIRECT = False  # Set to True in production
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False  # Set to False for development
+CSRF_COOKIE_SECURE = False  # Set to False for development
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
