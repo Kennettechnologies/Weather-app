@@ -25,6 +25,7 @@
     ],
     "env": {
         "PYTHONPATH": ".",
-        "DJANGO_SETTINGS_MODULE": "weather_project.settings"
+        "DJANGO_SETTINGS_MODULE": "weather_project.settings",
+        "DEBUG": "False"
     }
 } 
