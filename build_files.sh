@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Install Python dependencies
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 # Collect static files
-python manage.py collectstatic --noinput
+python3 manage.py collectstatic --noinput
 
 # Make migrations
-python manage.py makemigrations
+python3 manage.py makemigrations
 
 # Apply migrations
-python manage.py migrate 
+python3 manage.py migrate 
