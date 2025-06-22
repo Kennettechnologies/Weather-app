@@ -181,3 +181,5 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Add whitenoise for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+LOGIN_REDIRECT_URL = '/'
