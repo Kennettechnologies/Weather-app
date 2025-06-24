@@ -11,5 +11,6 @@
             "src": "/(.*)",
             "dest": "weather_project/wsgi.py"
         }
-    ]
+    ],
+    "buildCommand": "bash build_files.sh"
 } 
